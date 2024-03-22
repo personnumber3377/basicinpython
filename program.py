@@ -36,6 +36,10 @@ class BasicProgram:
 			self.linenums.add(linenum)
 			self.linenums_as_list.append(linenum)
 			self.lines[linenum] = program_line
+
+			
+
+
 	def parse_line(self, line: str) -> tuple: # This returns a tuple of the form (LINE_TYPE, OPERATOR, arguments...) (all line types are defined in expressions.py)
 
 		# Check the keyword first.
@@ -48,7 +52,28 @@ class BasicProgram:
 		while True: # Main program loop.
 			# Get tokens from current line.
 			cur_line = self.lines[self.linenums_as_list[self.cur_line_num_index]]
-			print(cur_line)
+			print("Now executing this line: "+str(cur_line))
+			
+
+			# Split the current program line.
+
+			tokens = cur_line.split(" ")
+
+			possible_keyword = tokens[0]
+
+			# Now get the keyword.
+
+			# Lookup the handler. (There are a couple of special cases where the first character isn't a keyword).
+			if possible_keyword in self.keyword_handlers:
+
+				handler = self.keyword_handlers[possible_keyword]
+
+				# Now call that handler with the other tokens as argument
+				handler(tokens[1:])
+
+
+
+
 
 # Infinite hello world source code.
 example_source = """10 PRINT \"HELLO WORLD\"
