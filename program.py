@@ -1,5 +1,6 @@
 
 from util import * # needed for the fail function.
+from keywords import *
 
 # Implements the main program class
 
@@ -11,6 +12,10 @@ class BasicProgram:
 		# This is made a lot more complex, because the line numbers can be almost anything, as long as they are increasing in order.
 		self.linenums_as_list = [] # We iterate over this line when running the program. We iterate over this list, because then we do not need to search the linenums set for the next line.
 		self.cur_line_num_index = 0 # Index into the linenums_as_list array which specifies the current line.
+		self.variables = {} # Variable name is key and value is the... ya know... value.
+		self.keyword_handlers = {} # Function name is key and value is the actual function
+		attach_keywords(self) # This get's all of the keyword arguments
+
 	def load(self, filename) -> None:
 		# Loads program from file
 		fh = open(filename, "r")
@@ -50,6 +55,10 @@ class BasicProgram:
 		#program_line = self.linenums_as_list[0] # Get the first line.
 
 		while True: # Main program loop.
+			# Check if we have reached the end.
+			if self.cur_line_num_index == len(self.linenums_as_list):
+				print("Executed program succesfully!")
+				break
 			# Get tokens from current line.
 			cur_line = self.lines[self.linenums_as_list[self.cur_line_num_index]]
 			print("Now executing this line: "+str(cur_line))
@@ -69,15 +78,18 @@ class BasicProgram:
 				handler = self.keyword_handlers[possible_keyword]
 
 				# Now call that handler with the other tokens as argument
-				handler(tokens[1:])
+				handler(self, tokens[1:])
 
+			# Increment line counter
 
+			self.cur_line_num_index += 1
+
+		return
 
 
 
 # Infinite hello world source code.
-example_source = """10 PRINT \"HELLO WORLD\"
-20 GOTO 10"""
+example_source = """10 PRINT \"HELLO WORLD\""""
 
 def main() -> int: # Driver code.
 	prog = BasicProgram()
