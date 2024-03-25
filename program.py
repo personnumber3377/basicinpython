@@ -12,9 +12,12 @@ class BasicProgram:
 		# This is made a lot more complex, because the line numbers can be almost anything, as long as they are increasing in order.
 		self.linenums_as_list = [] # We iterate over this line when running the program. We iterate over this list, because then we do not need to search the linenums set for the next line.
 		self.cur_line_num_index = 0 # Index into the linenums_as_list array which specifies the current line.
+		self.line_num_to_index = {} # Get index into linenums_as_list from line number
 		self.variables = {} # Variable name is key and value is the... ya know... value.
 		self.keyword_handlers = {} # Function name is key and value is the actual function
 		attach_keywords(self) # This get's all of the keyword arguments
+		# Variable which specifies if the last line which was executed cause us to jump somewhere
+		self.jumped = False
 
 	def load(self, filename) -> None:
 		# Loads program from file
@@ -42,6 +45,8 @@ class BasicProgram:
 			self.linenums_as_list.append(linenum)
 			self.lines[linenum] = program_line
 
+			self.line_num_to_index[linenum] = len(self.linenums_as_list) - 1
+
 			
 
 
@@ -51,9 +56,6 @@ class BasicProgram:
 		return # Stub for now
 
 	def run_program(self) -> None: # Run the program.
-
-		#program_line = self.linenums_as_list[0] # Get the first line.
-
 		while True: # Main program loop.
 			# Check if we have reached the end.
 			if self.cur_line_num_index == len(self.linenums_as_list):
@@ -61,35 +63,28 @@ class BasicProgram:
 				break
 			# Get tokens from current line.
 			cur_line = self.lines[self.linenums_as_list[self.cur_line_num_index]]
-			print("Now executing this line: "+str(cur_line))
-			
-
 			# Split the current program line.
-
 			tokens = cur_line.split(" ")
-
 			possible_keyword = tokens[0]
-
 			# Now get the keyword.
-
 			# Lookup the handler. (There are a couple of special cases where the first character isn't a keyword).
 			if possible_keyword in self.keyword_handlers:
-
 				handler = self.keyword_handlers[possible_keyword]
-
 				# Now call that handler with the other tokens as argument
 				handler(self, tokens[1:])
-
+			# If we jumped, then do not increment.
+			if self.jumped:
+				self.jumped = False
+				continue
 			# Increment line counter
-
 			self.cur_line_num_index += 1
-
 		return
 
 
 
 # Infinite hello world source code.
-example_source = """10 PRINT \"HELLO WORLD\""""
+example_source = """10 PRINT \"HELLO WORLD\"
+20 GOTO 10"""
 
 def main() -> int: # Driver code.
 	prog = BasicProgram()
